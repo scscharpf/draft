@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  ListBucketsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.listBuckets.list_buckets.handler
+      Runtime: python2.7
+      CodeUri: ./
+      Policies:
+      - AWSLambdaExecute
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:ListAllMyBuckets
+          Resource: 'arn:aws:s3:::*'
+      Environment:
+        Variables:
+          S3_BUCKET: bucket-py-scs
+      Events:
+        GetBuckets:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+            RestApiId:
+              Ref: S3RestApi
+  ListObjectsFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+        Handler: src.listObject.list_objects.handler
+        Runtime: python2.7
+        Tags:
+
+        CodeUri: ./
+        Policies:
+        - AWSLambdaExecute
+        - Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
+            Resource: 'arn:aws:s3:::*'
+        Environment:
+          Variables:
+            S3_BUCKET: bucket-py-scs
+        Events:
+          GetObjects:
+            Type: Api
+            Properties:
+              Path: /{bucket}
+              Method: get
+              RestApiId:
+                Ref: S3RestApi
+  GetObjectFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+        Handler: src.getObject.get_object.handler
+        Runtime: python2.7
+        CodeUri: ./
+        Policies:
+        - AWSLambdaExecute
+        - Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
+            Resource: 'arn:aws:s3:::*'
+        Environment:
+          Variables:
+            S3_BUCKET: bucket-py-scs
+        Events:
+          GetObjects:
+            Type: Api
+            Properties:
+              Path: /{bucket}/{object}
+              Method: get
+              RestApiId:
+                Ref: S3RestApi
+  ShredMetadataFunction:
+      Type: AWS::Serverless::Function
+      Properties:
+        Handler: src.shredMetadata.shred_metadata.handler
+        Runtime: python2.7
+        CodeUri: ./
+        Policies:
+        - AWSLambdaExecute
+        - Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
+            Resource: 'arn:aws:s3:::*'
+        Environment:
+          Variables:
+            S3_BUCKET: bucket-py-scs
+        Events:
+          MetadataExtractorEvent:
+              Type: S3
+              Properties:
+                Bucket: !Ref NetCdfMetadataBucket
+                Events: s3:ObjectCreated:*
+                Filter:
+                  S3Key:
+                    Rules:
+                      - Name: suffix
+                        Value: '.nc'
+  NetCdfMetadataBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: metadata-bucket-scs
+  S3RestApi:
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: v1
+        DefinitionBody:
+          swagger: '2.0'
+          info:
+            version: '1.0'
+            title:
+              Ref: AWS::StackName
+          paths:
+            /:
+              get:
+                x-amazon-apigateway-integration:
+                  httpMethod: POST
+                  type: aws_proxy
+                  uri:
+                    Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListBucketsFunction.Arn}/invocations
+                responses: {}
+                produces:
+                  - application/json
+                security:
+                  - api_key: []
+            /{bucket}:
+              get:
+                x-amazon-apigateway-integration:
+                  httpMethod: POST
+                  type: aws_proxy
+                  uri:
+                    Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListObjectsFunction.Arn}/invocations
+                responses: {}
+                produces:
+                  - application/json
+                security:
+                  - api_key: []
+            /{bucket}/{object}:
+              get:
+                x-amazon-apigateway-integration:
+                  httpMethod: POST
+                  type: aws_proxy
+                  uri:
+                    Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetObjectFunction.Arn}/invocations
+                responses: {}
+                produces:
+                  - application/json
+                security:
+                  - api_key: []
+#          securityDefinitions:
+#            api_key:
+#              type: apiKey
+#              name: x-api-key
+#              in: header

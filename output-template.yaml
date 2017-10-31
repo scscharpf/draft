@@ -1,0 +1,159 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  GetObjectFunction:
+    Properties:
+      CodeUri: s3://bucket-py-scs/242c6e1cc608e4ee4a5ed3d01cf54003
+      Environment:
+        Variables:
+          S3_BUCKET: bucket-py-scs
+      Events:
+        GetObjects:
+          Properties:
+            Method: get
+            Path: /{bucket}/{object}
+            RestApiId:
+              Ref: S3RestApi
+          Type: Api
+      Handler: src.getObject.get_object.handler
+      Policies:
+      - AWSLambdaExecute
+      - Statement:
+        - Action:
+          - s3:ListBucket
+          Effect: Allow
+          Resource: arn:aws:s3:::*
+        Version: '2012-10-17'
+      Runtime: python2.7
+    Type: AWS::Serverless::Function
+  ListBucketsFunction:
+    Properties:
+      CodeUri: s3://bucket-py-scs/4d028621e30b2e2718540c786ef44110
+      Environment:
+        Variables:
+          S3_BUCKET: bucket-py-scs
+      Events:
+        GetBuckets:
+          Properties:
+            Method: get
+            Path: /
+            RestApiId:
+              Ref: S3RestApi
+          Type: Api
+      Handler: src.listBuckets.list_buckets.handler
+      Policies:
+      - AWSLambdaExecute
+      - Statement:
+        - Action:
+          - s3:ListAllMyBuckets
+          Effect: Allow
+          Resource: arn:aws:s3:::*
+        Version: '2012-10-17'
+      Runtime: python2.7
+    Type: AWS::Serverless::Function
+  ListObjectsFunction:
+    Properties:
+      CodeUri: s3://bucket-py-scs/4d028621e30b2e2718540c786ef44110
+      Environment:
+        Variables:
+          S3_BUCKET: bucket-py-scs
+      Events:
+        GetObjects:
+          Properties:
+            Method: get
+            Path: /{bucket}
+            RestApiId:
+              Ref: S3RestApi
+          Type: Api
+      Handler: src.listObject.list_objects.handler
+      Policies:
+      - AWSLambdaExecute
+      - Statement:
+        - Action:
+          - s3:ListBucket
+          Effect: Allow
+          Resource: arn:aws:s3:::*
+        Version: '2012-10-17'
+      Runtime: python2.7
+      Tags: null
+    Type: AWS::Serverless::Function
+  NetCdfMetadataBucket:
+    Properties:
+      BucketName: metadata-bucket-scs
+    Type: AWS::S3::Bucket
+  S3RestApi:
+    Properties:
+      DefinitionBody:
+        info:
+          title:
+            Ref: AWS::StackName
+          version: '1.0'
+        paths:
+          /:
+            get:
+              produces:
+              - application/json
+              responses: {}
+              security:
+              - api_key: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListBucketsFunction.Arn}/invocations
+          /{bucket}:
+            get:
+              produces:
+              - application/json
+              responses: {}
+              security:
+              - api_key: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListObjectsFunction.Arn}/invocations
+          /{bucket}/{object}:
+            get:
+              produces:
+              - application/json
+              responses: {}
+              security:
+              - api_key: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetObjectFunction.Arn}/invocations
+        swagger: '2.0'
+      StageName: v1
+    Type: AWS::Serverless::Api
+  ShredMetadataFunction:
+    Properties:
+      CodeUri: s3://bucket-py-scs/4d028621e30b2e2718540c786ef44110
+      Environment:
+        Variables:
+          S3_BUCKET: bucket-py-scs
+      Events:
+        MetadataExtractorEvent:
+          Properties:
+            Bucket:
+              Ref: NetCdfMetadataBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                - Name: suffix
+                  Value: .nc
+          Type: S3
+      Handler: src.shredMetadata.shred_metadata.handler
+      Policies:
+      - AWSLambdaExecute
+      - Statement:
+        - Action:
+          - s3:ListBucket
+          Effect: Allow
+          Resource: arn:aws:s3:::*
+        Version: '2012-10-17'
+      Runtime: python2.7
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31

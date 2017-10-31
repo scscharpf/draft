@@ -13,7 +13,7 @@ phases:
       - pip install setuptools -t build/shred_metadata
       - pip install xarray -t build/shred_metadata
       - pip install netCDF4 -t build/shred_metadata
-      - aws cloudformation package --template-file emplate.yaml --s3-bucket bucket-py-scs
+      - aws cloudformation package --template-file template.yaml --s3-bucket bucket-py-scs
                                    --output-template-file output-template.yaml
 artifacts:
   type: zip

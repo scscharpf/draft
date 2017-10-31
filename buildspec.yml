@@ -6,9 +6,9 @@ phases:
             - pip install netCDF4
   build:
     commands:
-      - python getObject_setup.py build --build-purelib=build/list_buckets
-      - python listBuckets_setup.py build --build-purelib=build/list_objects
-      - python listObject_setup.py build --build-purelib=build/get_object
+      - python getObject_setup.py build --build-purelib=build/get_object
+      - python listBuckets_setup.py build --build-purelib=build/list_buckets
+      - python listObject_setup.py build --build-purelib=build/list_objects
       - python shredMetadata_setup.py build --build-purelib=build/shred_metadata
       - pip install setuptools -t build/shred_metadata
       - pip install xarray -t build/shred_metadata

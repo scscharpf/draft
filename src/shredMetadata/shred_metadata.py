@@ -1,7 +1,7 @@
 import json
 import logging
 import uuid
-
+from decimal import Decimal
 import boto3
 import xarray
 
@@ -24,11 +24,29 @@ def get_properties_geojson(data_set):
     return json.loads(data_set.attrs['core_geographic_area_shape'])
 
 
+def get_properties_name(data_set):
+    return get_properties_geojson(data_set)['crs']['properties']['name']
+
+
+def get_type(data_set):
+    return get_properties_geojson(data_set)['type']
+
+
 def get_data_set(bucket_name, object_key):
     tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
     boto3.resource('s3').Bucket(bucket_name).download_file(object_key, tmp_file_path)
     return xarray.open_dataset(tmp_file_path)
 
+
+def get_coords(data_set):
+    coords=[]
+    properties_geojson = get_properties_geojson(data_set)
+
+    for coord in properties_geojson['coordinates'][0]:
+        latitude = Decimal(str(coord[1]))
+        longitude = Decimal(str(coord[0]))
+        coords.append([longitude, latitude])
+    return coords
 
 class MetadataShredder(LambdaBase):
 
@@ -42,7 +60,7 @@ class MetadataShredder(LambdaBase):
             bucket_name = get_bucket_name(record)
             key_name = get_object_key(record)
             data_set = get_data_set(bucket_name, key_name)
-            self.send_metadata_to_dynamodb_table(data_set,bucket_name, key_name)
+            self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
 
             #
             # forecast_date = get_forecast_date(data_set)
@@ -57,28 +75,23 @@ class MetadataShredder(LambdaBase):
         #                      }})
         # self.logger.info('Metadata {}'.format(json.dumps(metadata)))
         # return metadata
+    @staticmethod
+    def send_metadata_to_dynamodb_table(data_set, bucket_name, key_name):
+        dynamodb_resource = boto3.resource('dynamodb', region_name= 'eu-west-1')
 
-    def send_metadata_to_dynamodb_table(self, data_set, bucket_name, key_name):
-        dynamodb_client = boto3.client('dynamodb')
-        properties_geojson = get_properties_geojson(data_set)
-        response = dynamodb_client.put_item(
-            TableName='scs_new',
-            Item={
-                'Metadata': {
-                    'uuid': uuid.uuid4().get_hex(),
-                    'bucket_name': bucket_name,
-                    'key_name': key_name,
-                    'forecast_date': get_forecast_date(data_set),
-                    'coordinates': properties_geojson['coordinates'],
-                    'geo_json': {
-                        'type': properties_geojson['type'],
-                        'properties':   {
-                                    'name': properties_geojson['name']
-                        }
-                    }
+        item = {'uuid': str(uuid.uuid4()),
+                'bucket_name': bucket_name,
+                'key_name': key_name,
+                'forecast_date': get_forecast_date(data_set),
+                'geo_json': {
+                    'type': get_type(data_set),
+                    'properties': {'name': get_properties_name(data_set)}
+                },
+                'coordinates': [get_coords(data_set)]
                 }
-            })
-        return json.dumps(response)
+
+        table = dynamodb_resource.Table('scs_metadata')
+        table.put_item(Item=item)
 
     def handle(self, event, context):
         self.shred_metadata(event)

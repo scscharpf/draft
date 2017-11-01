@@ -4,7 +4,7 @@ phases:
     commands:
             - pip install xarray
             - pip install netCDF4
-            - pip install --upgrade -user aws-cli
+            - pip install --upgrade --user aws-cli
   build:
     commands:
       - python getObject_setup.py build --build-purelib=build/get_object

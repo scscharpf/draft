@@ -109,7 +109,7 @@ Resources:
   NetCdfMetadataBucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: md-bucket
+      BucketName: md
   S3RestApi:
       Type: AWS::Serverless::Api
       Properties:

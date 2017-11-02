@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Resources:
   GetObjectFunction:
     Properties:
-      CodeUri: s3://bucket-py-scs/b43912efd6ccb41548b5ee0c0f2df8bc
+      CodeUri: s3://bucket-py-scs/2fce52179d0a8f3584d0fff518df5fa6
       Environment:
         Variables:
           S3_BUCKET: bucket-py-scs
@@ -27,7 +27,7 @@ Resources:
     Type: AWS::Serverless::Function
   ListBucketsFunction:
     Properties:
-      CodeUri: s3://bucket-py-scs/b43912efd6ccb41548b5ee0c0f2df8bc
+      CodeUri: s3://bucket-py-scs/2fce52179d0a8f3584d0fff518df5fa6
       Environment:
         Variables:
           S3_BUCKET: bucket-py-scs
@@ -52,7 +52,7 @@ Resources:
     Type: AWS::Serverless::Function
   ListObjectsFunction:
     Properties:
-      CodeUri: s3://bucket-py-scs/b43912efd6ccb41548b5ee0c0f2df8bc
+      CodeUri: s3://bucket-py-scs/2fce52179d0a8f3584d0fff518df5fa6
       Environment:
         Variables:
           S3_BUCKET: bucket-py-scs
@@ -78,7 +78,7 @@ Resources:
     Type: AWS::Serverless::Function
   NetCdfMetadataBucket:
     Properties:
-      BucketName: metadata-scs-bucket
+      BucketName: bucket-metadata
     Type: AWS::S3::Bucket
   S3RestApi:
     Properties:
@@ -129,7 +129,7 @@ Resources:
     Type: AWS::Serverless::Api
   ShredMetadataFunction:
     Properties:
-      CodeUri: s3://bucket-py-scs/b43912efd6ccb41548b5ee0c0f2df8bc
+      CodeUri: s3://bucket-py-scs/2fce52179d0a8f3584d0fff518df5fa6
       Environment:
         Variables:
           S3_BUCKET: bucket-py-scs

@@ -7,13 +7,20 @@ phases:
             - pip install --upgrade --user awscli
   build:
     commands:
-      - python getObject_setup.py build --build-purelib=build/get_object
-      - python listBuckets_setup.py build --build-purelib=build/list_buckets
-      - python listObject_setup.py build --build-purelib=build/list_objects
-      - python shredMetadata_setup.py build --build-purelib=build/shred_metadata
-      - pip install setuptools -t build/shred_metadata
-      - pip install xarray -t build/shred_metadata
-      - pip install netCDF4 -t build/shred_metadata
+#      - python getObject_setup.py build --build-purelib=build/get_object
+#      - python listBuckets_setup.py build --build-purelib=build/list_buckets
+#      - python listObject_setup.py build --build-purelib=build/list_objects
+#      - python shredMetadata_setup.py build --build-purelib=build/shred_metadata
+#      - pip install setuptools -t build/shred_metadata
+#      - pip install xarray -t build/shred_metadata
+#      - pip install netCDF4 -t build/shred_metadata
+      - python getObject_setup.py build
+      - python listBuckets_setup.py build
+      - python listObject_setup.py build
+      - python shredMetadata_setup.py build
+      - pip install setuptools
+      - pip install xarray
+      - pip install netCDF4
       - aws cloudformation package --template-file template.yaml --s3-bucket bucket-py-scs
                                    --output-template-file output-template.yaml
 artifacts:

@@ -59,8 +59,7 @@ class MetadataShredder(LambdaBase):
         metadata = []
         for record in event['Records']:
             self.logger.info('record{}'.format(record))
-
-             bucket_name = get_bucket_name(record)
+            bucket_name = get_bucket_name(record)
             key_name = get_object_key(record)
             self.logger.info('bucket{}'.format(bucket_name))
             self.logger.info('key{}'.format(key_name))

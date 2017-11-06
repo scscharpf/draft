@@ -89,9 +89,9 @@ class MetadataShredder(LambdaBase):
 
     def handle(self, event, context):
         self.shred_metadata(event)
-        # return ({
-        #     'statusCode': 200,
-        #     'body': 'metadata added to database'
-        # })
+        return ({
+            'statusCode': 200,
+            'body': 'metadata added to database'
+        })
 
 handler = MetadataShredder.get_handler(boto3.client('s3'))

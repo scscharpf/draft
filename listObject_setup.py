@@ -5,5 +5,6 @@ setup(name='list_objects',
       packages=['src',
                 'src.listObject',
                 'src.restHandlers',
-                'src.awsBase']
+                'src.awsBase'],
+      packages_dir={'': 'src'}
       )

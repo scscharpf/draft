@@ -5,6 +5,7 @@ setup(name='get_object',
       packages=['src',
                 'src.getObject',
                 'src.restHandlers',
-                'src.awsBase']
+                'src.awsBase'],
+      packages_dir={'': 'src'}
       )
 

@@ -62,19 +62,6 @@ class MetadataShredder(LambdaBase):
             data_set = get_data_set(bucket_name, key_name)
             self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
 
-            #
-            # forecast_date = get_forecast_date(data_set)
-            # properties_geojson = get_properties_geojson(data_set)
-
-        #     metadata.append({'Bucket': bucket_name,
-        #                      'Key': key_name,
-        #                      'Forecast Date': forecast_date,
-        #                      'Geojson_properties': {
-        #                          'Type': properties_geojson['type'],
-        #                          'Coordinates': properties_geojson['coordinates']
-        #                      }})
-        # self.logger.info('Metadata {}'.format(json.dumps(metadata)))
-        # return metadata
     @staticmethod
     def send_metadata_to_dynamodb_table(data_set, bucket_name, key_name):
         dynamodb_resource = boto3.resource('dynamodb', region_name= 'eu-west-1')
@@ -85,9 +72,13 @@ class MetadataShredder(LambdaBase):
                 'forecast_date': get_forecast_date(data_set),
                 'geo_json': {
                     'type': get_type(data_set),
-                    'properties': {'name': get_properties_name(data_set)}
-                },
-                'coordinates': [get_coords(data_set)]
+                    'crs': {
+                          'properties': {
+                              'name': get_properties_name(data_set)
+                          },
+                          'coordinates': [get_coords(data_set)]
+                    }
+                }
                 }
 
         table = dynamodb_resource.Table('scs_metadata')

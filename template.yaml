@@ -6,7 +6,7 @@ Resources:
     Properties:
       Handler: src.listBuckets.list_buckets.handler
       Runtime: python2.7
-      CodeUri: ./
+      CodeUri: ./build/list_buckets
       Policies:
       - AWSLambdaExecute
       - Version: '2012-10-17'
@@ -31,9 +31,7 @@ Resources:
       Properties:
         Handler: src.listObject.list_objects.handler
         Runtime: python2.7
-        Tags:
-
-        CodeUri: ./
+        CodeUri: ./list_object
         Policies:
         - AWSLambdaExecute
         - Version: '2012-10-17'
@@ -58,7 +56,7 @@ Resources:
       Properties:
         Handler: src.getObject.get_object.handler
         Runtime: python2.7
-        CodeUri: ./
+        CodeUri: ./build/get_object
         Policies:
         - AWSLambdaExecute
         - Version: '2012-10-17'
@@ -83,7 +81,7 @@ Resources:
       Properties:
         Handler: src.shredMetadata.shred_metadata.handler
         Runtime: python2.7
-        CodeUri: ./
+        CodeUri: ./build/shred_metadata
         Policies:
         - AWSLambdaExecute
         - Version: '2012-10-17'
@@ -109,7 +107,7 @@ Resources:
   NetCdfMetadataBucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: md-scs-bucket
+      BucketName: bucket-md3
   S3RestApi:
       Type: AWS::Serverless::Api
       Properties:

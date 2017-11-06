@@ -5,5 +5,7 @@ setup(name='list_buckets',
       packages=['src',
                 'src.listBuckets',
                 'src.restHandlers',
-                'src.awsBase']
+                'src.awsBase'],
+      packages_dir={'': 'src'}
+
       )

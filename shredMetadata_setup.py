@@ -8,5 +8,5 @@ setup(name='shred_metadata',
                 'src.awsBase'],
       install_requires=['netCDF4',
                         'xarray'],
-      packages_dir={'src': 'src'}
+      packages_dir={'': 'src'}
       )

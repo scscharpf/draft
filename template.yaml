@@ -31,7 +31,7 @@ Resources:
       Properties:
         Handler: src.listObject.list_objects.handler
         Runtime: python2.7
-        CodeUri: ./list_object
+        CodeUri: ./build/list_object
         Policies:
         - AWSLambdaExecute
         - Version: '2012-10-17'

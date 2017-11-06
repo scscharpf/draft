@@ -58,11 +58,15 @@ class MetadataShredder(LambdaBase):
     def shred_metadata(self, event):
         metadata = []
         for record in event['Records']:
-            bucket_name = get_bucket_name(record)
+            self.logger.info('record{}'.format(record))
+
+             bucket_name = get_bucket_name(record)
             key_name = get_object_key(record)
+            self.logger.info('bucket{}'.format(bucket_name))
+            self.logger.info('key{}'.format(key_name))
             data_set = get_data_set(bucket_name, key_name)
-            self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
-            self.logger.info('metadata {}'.format(self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)))
+            item = self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
+            self.logger.info('metadata {}'.format(item))
 
     @staticmethod
     def send_metadata_to_dynamodb_table(data_set, bucket_name, key_name):

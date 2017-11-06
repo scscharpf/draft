@@ -48,6 +48,7 @@ def get_coords(data_set):
         coords.append([longitude, latitude])
     return coords
 
+
 class MetadataShredder(LambdaBase):
 
     def __init__(self, s3, log_level=logging.INFO):
@@ -61,6 +62,7 @@ class MetadataShredder(LambdaBase):
             key_name = get_object_key(record)
             data_set = get_data_set(bucket_name, key_name)
             self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
+            self.logger.info('metadata {}'.format(self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)))
 
     @staticmethod
     def send_metadata_to_dynamodb_table(data_set, bucket_name, key_name):
@@ -83,12 +85,13 @@ class MetadataShredder(LambdaBase):
 
         table = dynamodb_resource.Table('scs_metadata')
         table.put_item(Item=item)
+        return json.dumps(item)
 
     def handle(self, event, context):
         self.shred_metadata(event)
-        return ({
-            'statusCode': 200,
-            'body': 'metadata added to database'
-        })
+        # return ({
+        #     'statusCode': 200,
+        #     'body': 'metadata added to database'
+        # })
 
 handler = MetadataShredder.get_handler(boto3.client('s3'))

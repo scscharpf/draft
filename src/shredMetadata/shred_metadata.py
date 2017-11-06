@@ -35,6 +35,7 @@ def get_type(data_set):
 def get_data_set(bucket_name, object_key):
     tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
     boto3.resource('s3').Bucket(bucket_name).download_file(object_key, tmp_file_path)
+    logging.log('dataset {}', tmp_file_path)
     return xarray.open_dataset(tmp_file_path)
 
 
@@ -67,7 +68,7 @@ class MetadataShredder(LambdaBase):
 
     @staticmethod
     def send_metadata_to_dynamodb_table(data_set, bucket_name, key_name):
-        dynamodb_resource = boto3.resource('dynamodb', region_name= 'eu-west-1')
+        dynamodb_resource = boto3.resource('dynamodb', region_name='eu-west-1')
 
         item = {'uuid': str(uuid.uuid4()),
                 'bucket_name': bucket_name,

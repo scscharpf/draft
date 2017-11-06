@@ -32,9 +32,9 @@ def get_type(data_set):
     return get_properties_geojson(data_set)['type']
 
 
-def get_data_set(bucket_name, object_key):
+def get_data_set(bucket_name, key_name):
     tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
-    boto3.resource('s3').Bucket(bucket_name).download_file(object_key, tmp_file_path)
+    boto3.client('s3').download_file(bucket_name, key_name, tmp_file_path)
     logging.log('dataset {}', tmp_file_path)
     return xarray.open_dataset(tmp_file_path)
 

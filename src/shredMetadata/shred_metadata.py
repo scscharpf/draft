@@ -55,13 +55,13 @@ class MetadataShredder(LambdaBase):
         tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
         try:
             # obj = self.s3.getObject(bucket_name, key_name)
-            obj = boto3.resource('s3').Bucket(bucket_name).Object(key_name)
+            # obj = boto3.resource('s3').Bucket(bucket_name).Object(key_name)
             # obj.get_contents_to_filename(tmp_file_path)
 
-            # self.s3.download_file(bucket_name, key_name, tmp_file_path)
+            self.s3.download_file(bucket_name, key_name, tmp_file_path)
 
             # boto3.resource('s3').Object('bucket-sam-scs', 'tst').upload_file(tmp_file_path)
-            return xarray.open_dataset(obj)
+            return xarray.open_dataset(tmp_file_path)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 print("The object does not exist.")

@@ -54,8 +54,8 @@ class MetadataShredder(LambdaBase):
     def get_data_set(self, bucket_name, key_name):
         tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
         try:
-            obj = self.s3.getObject(bucket_name,key_name)
-            # obj = boto3.resource('s3').Bucket(bucket_name).Object(key_name)
+            # obj = self.s3.getObject(bucket_name, key_name)
+            obj = boto3.resource('s3').Bucket(bucket_name).Object(key_name)
             # obj.get_contents_to_filename(tmp_file_path)
 
             # self.s3.download_file(bucket_name, key_name, tmp_file_path)

@@ -35,9 +35,7 @@ def get_type(data_set):
 def get_data_set(bucket_name, key_name):
     tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
     boto3.client('s3').download_file(bucket_name, key_name, tmp_file_path)
-    ds = xarray.open_dataset(tmp_file_path)
-    print(ds)
-    return ds
+    return xarray.open_dataset(tmp_file_path)
 
 
 def get_coords(data_set):
@@ -63,9 +61,8 @@ class MetadataShredder(LambdaBase):
             bucket_name = get_bucket_name(record)
             key_name = get_object_key(record)
             data_set = get_data_set(bucket_name, key_name)
-            self.logger.info('dataset {}'.format(json.dumps(data_set)))
-            item = self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
-            self.logger.info('metadata {}'.format(item))
+            self.logger.info('coords {}'.format(get_coords(data_set)))
+            self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
 
     @staticmethod
     def send_metadata_to_dynamodb_table(data_set, bucket_name, key_name):
@@ -88,7 +85,6 @@ class MetadataShredder(LambdaBase):
 
         table = dynamodb_resource.Table('scs_metadata')
         table.put_item(Item=item)
-        return json.dumps(item)
 
     def handle(self, event, context):
         self.shred_metadata(event)

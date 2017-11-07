@@ -52,7 +52,8 @@ class MetadataShredder(LambdaBase):
         self.s3 = s3
 
     def get_data_set(self, bucket_name, key_name):
-        tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
+        tmp_file_path = '/tmp/' + uuid.uuid4().get_hex() + key_name
+        self.logger.info('>>>>> tmp/ ' + tmp_file_path)
         self.s3.download_file(bucket_name, key_name, tmp_file_path)
         return xarray.open_dataset(tmp_file_path, autoclose=True)
 

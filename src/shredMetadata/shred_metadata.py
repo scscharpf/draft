@@ -56,10 +56,7 @@ class MetadataShredder(LambdaBase):
         try:
             self.s3.download_file(bucket_name, key_name, tmp_file_path)
         except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] == "404":
-                print("The object does not exist.")
-            else:
-                raise
+            print("The object does not exist." + e)
         return xarray.open_dataset(tmp_file_path)
 
     def shred_metadata(self, event):

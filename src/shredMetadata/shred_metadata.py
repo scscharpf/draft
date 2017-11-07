@@ -34,6 +34,7 @@ def get_type(data_set):
 
 def get_data_set(bucket_name, key_name):
     tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
+    print(tmp_file_path)
     boto3.client('s3').download_file(bucket_name, key_name, tmp_file_path)
     return xarray.open_dataset(tmp_file_path)
 

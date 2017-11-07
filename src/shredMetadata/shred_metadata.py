@@ -5,6 +5,7 @@ from decimal import Decimal
 import boto3
 import xarray
 import os
+import botocore
 
 from src.awsBase.LambdaBase import LambdaBase
 
@@ -35,8 +36,14 @@ def get_type(data_set):
 
 def get_data_set(bucket_name, key_name):
     tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
-    boto3.client('s3').download_file(bucket_name, key_name, tmp_file_path)
+    # try:
+    boto3.resource('s3').Bucket(bucket_name).download_file(key_name, tmp_file_path)
     print('file' + os.path.isfile(tmp_file_path))
+    # except botocore.exceptions.ClientError as e:
+    #     if e.response['Error']['Code'] == "404":
+    #         print("The object does not exist.")
+    #     else:
+    #         raise
     return xarray.open_dataset(tmp_file_path)
 
 

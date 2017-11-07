@@ -34,19 +34,6 @@ def get_type(data_set):
     return get_properties_geojson(data_set)['type']
 
 
-def get_data_set(bucket_name, key_name):
-    tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
-    # try:
-    boto3.resource('s3').Bucket(bucket_name).download_file(key_name, tmp_file_path)
-    print('file' + os.path.isfile(tmp_file_path))
-    # except botocore.exceptions.ClientError as e:
-    #     if e.response['Error']['Code'] == "404":
-    #         print("The object does not exist.")
-    #     else:
-    #         raise
-    return xarray.open_dataset(tmp_file_path)
-
-
 def get_coords(data_set):
     coords=[]
     properties_geojson = get_properties_geojson(data_set)
@@ -64,12 +51,22 @@ class MetadataShredder(LambdaBase):
         super(MetadataShredder, self).__init__(log_level)
         self.s3 = s3
 
+    def get_data_set(self, bucket_name, key_name):
+        tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
+        # try:
+        self.s3.download_file(bucket_name, key_name, tmp_file_path)
+        # except botocore.exceptions.ClientError as e:
+        #     if e.response['Error']['Code'] == "404":
+        #         print("The object does not exist.")
+        #     else:
+        #         raise
+        return xarray.open_dataset(tmp_file_path)
+
     def shred_metadata(self, event):
-        metadata = []
         for record in event['Records']:
             bucket_name = get_bucket_name(record)
             key_name = get_object_key(record)
-            data_set = get_data_set(bucket_name, key_name)
+            data_set = self.get_data_set(bucket_name, key_name)
             self.logger.info('coords {}'.format(get_coords(data_set)))
             self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
 

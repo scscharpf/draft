@@ -3,6 +3,7 @@ import logging
 import uuid
 from decimal import Decimal
 import boto3
+import netCDF4
 import xarray
 import os
 import botocore
@@ -55,7 +56,7 @@ class MetadataShredder(LambdaBase):
         tmp_file_path = '/tmp/' + uuid.uuid4().get_hex() + key_name
         self.logger.info('>>>>> tmp/ ' + tmp_file_path)
         self.s3.download_file(bucket_name, key_name, tmp_file_path)
-        return xarray.open_dataset(tmp_file_path, autoclose=True)
+        return netCDF4.Dataset(tmp_file_path)
 
     def shred_metadata(self, event):
         for record in event['Records']:

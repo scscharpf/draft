@@ -54,8 +54,6 @@ class MetadataShredder(LambdaBase):
 
     def get_data_set(self, bucket_name, key_name):
         tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
-        size = os.path.getsize(tmp_file_path)
-        self.logger.info('size: ' + size)
         self.s3.download_file(bucket_name, key_name, tmp_file_path)
         size = os.path.getsize(tmp_file_path)
         self.logger.info('size: ' + size)

@@ -53,11 +53,14 @@ class MetadataShredder(LambdaBase):
         self.s3 = s3
 
     def get_data_set(self, bucket_name, key_name):
-        tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
-        self.s3.download_file(bucket_name, key_name, tmp_file_path)
-        size = os.path.getsize(tmp_file_path)
-        self.logger.info('size: ' + size)
-        return netCDF4.Dataset(tmp_file_path, 'r')
+        obj= boto3.resource('s3').Bucket(bucket_name).Object(key_name)
+        # tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
+        # size = os.path.getsize(tmp_file_path)
+        # self.logger.info('size: ' + size)
+        # self.s3.download_file(bucket_name, key_name, tmp_file_path)
+        # size = os.path.getsize(tmp_file_path)
+        # self.logger.info('size: ' + size)
+        return netCDF4.Dataset(obj)
         # return xarray.open_dataset(tmp_file_path)
 
     def shred_metadata(self, event):

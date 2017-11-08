@@ -81,6 +81,7 @@ Resources:
       Properties:
         Handler: src.shredMetadata.shred_metadata.handler
         Runtime: python2.7
+        Timeout: 30
         CodeUri: ./build/shred_metadata
         Policies:
         - AWSLambdaExecute

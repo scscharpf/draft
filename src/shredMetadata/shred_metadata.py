@@ -56,7 +56,7 @@ class MetadataShredder(LambdaBase):
         tmp_file_path = '/tmp/' + uuid.uuid4().get_hex() + key_name
         self.logger.info('>>>>> tmp/ ' + tmp_file_path)
         self.s3.download_file(bucket_name, key_name, tmp_file_path)
-        self.logger.info('>>>>>>>>>>>>>>>path >>>>>>>>>>>>>>>>>>>>>>>'+ os.path.exists(tmp_file_path))
+        self.logger.info(os.path.exists(tmp_file_path))
         return netCDF4.Dataset(tmp_file_path, 'r')
 
     def shred_metadata(self, event):

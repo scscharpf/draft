@@ -91,7 +91,7 @@ Resources:
             Action:
             - s3:ListBucket
             Resource: 'arn:aws:s3:::*'
-#        - AWSLambdaDynamoDBExecutionRole
+        - AWSLambdaDynamoDBExecutionRole
         Environment:
           Variables:
             S3_BUCKET: bucket-py-scs
@@ -114,24 +114,24 @@ Resources:
 #                StartingPosition: TRIM_HORIZON
 
   NetCdfMetadataBucket:
-    Type: "AWS::S3::Bucket"
+    Type: AWS::S3::Bucket
     Properties:
       BucketName: bucket-md3
-#  DynamoDBTable:
-#      Type: AWS::DynamoDB::Table
-#      Properties:
-#        AttributeDefinitions:
-#          - AttributeName: uuid
-#            AttributeType: S
-#        KeySchema:
-#          - AttributeName: uuid
-#            KeyType: HASH
-#        ProvisionedThroughput:
-#          ReadCapacityUnits: 5
-#          WriteCapacityUnits: 5
-#        StreamSpecification:
-#          StreamViewType: NEW_IMAGE
-#        TableName: metadata-scs
+  DynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: uuid
+            AttributeType: S
+        KeySchema:
+          - AttributeName: uuid
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+        TableName: metadata-scs
   S3RestApi:
       Type: AWS::Serverless::Api
       Properties:

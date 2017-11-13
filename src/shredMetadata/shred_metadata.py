@@ -3,10 +3,8 @@ import logging
 import uuid
 from decimal import Decimal
 import boto3
-import netCDF4
 import xarray
-import os
-import botocore
+
 
 from src.awsBase.LambdaBase import LambdaBase
 
@@ -46,24 +44,23 @@ def get_coords(data_set):
     return coords
 
 
+def get_data_set(bucket_name, key_name):
+    tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
+    boto3.client('s3').download_file(bucket_name, key_name, tmp_file_path)
+    return xarray.open_dataset(tmp_file_path)
+
+
 class MetadataShredder(LambdaBase):
 
     def __init__(self, s3, log_level=logging.INFO):
         super(MetadataShredder, self).__init__(log_level)
         self.s3 = s3
 
-    def get_data_set(self, bucket_name, key_name):
-        tmp_file_path = '/tmp/' + uuid.uuid4().get_hex()
-        self.s3.download_file(bucket_name, key_name, tmp_file_path)
-        size = os.path.getsize(tmp_file_path)
-        self.logger.info('size {}'.format(size))
-        return xarray.open_dataset(tmp_file_path)
-
     def shred_metadata(self, event):
         for record in event['Records']:
             bucket_name = get_bucket_name(record)
             key_name = get_object_key(record)
-            data_set = self.get_data_set(bucket_name, key_name)
+            data_set = get_data_set(bucket_name, key_name)
             self.logger.info('coords {}'.format(get_coords(data_set)))
             self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
             data_set.close()

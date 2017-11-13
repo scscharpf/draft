@@ -124,7 +124,7 @@ Resources:
   NetCdfMetadataBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: bucket-py-scs
+      BucketName: bucket-md4
   DynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:

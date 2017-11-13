@@ -92,6 +92,12 @@ Resources:
             - s3:ListBucket
             Resource: 'arn:aws:s3:::*'
         - AWSLambdaDynamoDBExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - dynamodb:PutItem
+            Resource: 'arn:aws:dynamodb:::*'
         Environment:
           Variables:
             S3_BUCKET: bucket-py-scs

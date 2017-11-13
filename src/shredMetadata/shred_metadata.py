@@ -61,7 +61,6 @@ class MetadataShredder(LambdaBase):
             bucket_name = get_bucket_name(record)
             key_name = get_object_key(record)
             data_set = get_data_set(bucket_name, key_name)
-            self.logger.info('coords {}'.format(get_coords(data_set)))
             self.send_metadata_to_dynamodb_table(data_set, bucket_name, key_name)
             data_set.close()
 

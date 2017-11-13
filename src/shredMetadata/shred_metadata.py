@@ -87,7 +87,7 @@ class MetadataShredder(LambdaBase):
                 }
                 }
 
-        table = dynamodb_resource.Table('scs_metadata')
+        table = dynamodb_resource.Table('metadata-scs')
         table.put_item(Item=item)
 
     def handle(self, event, context):
